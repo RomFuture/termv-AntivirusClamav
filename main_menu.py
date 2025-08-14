@@ -1,27 +1,12 @@
-"""Terminal menu (Рус.)
-
-Отдельный модуль, реализующий выбор пунктов меню в стиле второй картинки.
-
-Управление:
-  ↑/k  – вверх
-  ↓/j  – вниз
-  Enter – подтвердить выбор
-  q/Esc – выйти
-
-Пункты меню задаются в списке MENU_ITEMS.  При выборе «ВЫХОД» программа
-завершается; для остальных пунктов можно добавить собственную логику внутри
-блока if label == ... в обработчике Enter.
-"""
-
 import curses
-import time
-from itertools import count
 from typing import List, Tuple
 import arts
+from skan import skan_window
+from settings import settings_menu
+from logs import log_window
 
 # ДЛЯ МЕНЯ (РОМАН)
 # TODO 1) НУЖНО ПРИУДМАТЬ,ЧЕМ ЗАНЯТЬ СВОБОДНОЕ ПРОСТРАНСТВО В ГЛАВНОМ МЕНЮ
-# TODO 2) РАЗОБРАТЬ ВЕСЬ КОД В ГЛ. МЕНЮ НА ОТДЕЛЬНЫЕ ФАЙЛЫ + ПОЧИСТИТЬ ЕГО
 
 # ДЛЯ АЛИШЕРА
 # TODO 1) Разобраться, в том, как работает сам код
@@ -31,8 +16,9 @@ import arts
 # ПРИМЕЧАНИЕ: БОЛЬШАЯ ПРОСЬБА НЕ ИСПОЛЬЗОВАТЬ СИМВОЛЫ ТИПА ❌ - ЛОМАЮТ ОТОБРАЖЕНИЕ
 
 MENU_ITEMS: List[Tuple[str, str]] = [
-    ("НАЧАТЬ", "СКАНИРОВАНИЕ"), # ▶▶ символ «следующий»
+    ("НАЧАТЬ", "СКАНИРОВАНИЕ"),# ▶▶ символ «следующий»
     ("НАСТРОЙКИ", "⚙"),
+    ("ЛОГИ", "1"),
     ("ВЫХОД", "✖"),
 ]
 
@@ -115,16 +101,15 @@ def interaction(stdscr: "curses._CursesWindow") -> None:
             selected = (selected + 1) % len(MENU_ITEMS)
         elif key in (curses.KEY_ENTER, ord("\n"), ord("\r")):
             label = MENU_ITEMS[selected][0]
+            stdscr.clear()
             if label == "ВЫХОД":
                 break
-            # Здесь можно вставить логику для остальных пунктов
-            stdscr.addstr(0, 0, f"Вы выбрали: {label}    ")
-
-            # Обновление экрана
-            stdscr.clrtoeol()
-            stdscr.refresh()
-
-            time.sleep(0.1)
+            elif label == "НАЧАТЬ":
+                skan_window(stdscr)
+            elif label == "НАСТРОЙКИ":
+                settings_menu(stdscr)
+            elif label == "ЛОГИ":
+                log_window(stdscr)
 
         elif key in (27, ord("q")):
             break
