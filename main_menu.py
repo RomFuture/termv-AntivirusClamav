@@ -5,9 +5,6 @@ from skan import skan_window
 from settings import settings_menu
 from logs import log_window
 
-# ДЛЯ МЕНЯ (РОМАН)
-# TODO 1) НУЖНО ПРИУДМАТЬ,ЧЕМ ЗАНЯТЬ СВОБОДНОЕ ПРОСТРАНСТВО В ГЛАВНОМ МЕНЮ
-
 # ДЛЯ АЛИШЕРА
 # TODO 1) Разобраться, в том, как работает сам код
 # TODO 2) Самостоятельно начать работу над пунктом "Начать сканирование"
@@ -18,7 +15,7 @@ from logs import log_window
 MENU_ITEMS: List[Tuple[str, str]] = [
     ("НАЧАТЬ", "СКАНИРОВАНИЕ"),# ▶▶ символ «следующий»
     ("НАСТРОЙКИ", "⚙"),
-    ("ЛОГИ", "1"),
+    ("ЛОГИ", "▶"),
     ("ВЫХОД", "✖"),
 ]
 
@@ -26,8 +23,44 @@ def draw_arts(stdscr):
     for item in range(len(arts.CLAMAV)):
         stdscr.addstr(item+1,10, arts.CLAMAV[item])
     for i in range(len(arts.ANTIVIRUS_ART)):
-        stdscr.addstr(i, 60, arts.ANTIVIRUS_ART[i])
+        stdscr.addstr(i + 2, 65, arts.ANTIVIRUS_ART[i])
     stdscr.refresh()
+
+
+def _draw_box(stdscr, top, left, box_width, box_height):
+    H, V = "-", "|"
+    for x in range(box_width):
+        ch = "+" if x in (0, box_width - 1) else H
+        stdscr.addch(top, left + x, ch)
+        stdscr.addch(top + box_height - 1, left + x, ch)
+    for y in range(1, box_height - 1):
+        stdscr.addch(top + y, left, V)
+        stdscr.addch(top + y, left + box_width - 1, V)
+
+def _draw_thin_divider(stdscr, y, x, length):
+    """Тонкая точечная линия длиной length (короче, чем ширина экрана)."""
+    pattern = (". " * (length // 2 + 2))[:length]
+    stdscr.addstr(y, x, pattern)
+
+
+def _draw_info(stdscr, y, x):
+    stdscr.addstr(y, x, "ИНФОРМАЦИЯ — готов к работе.")
+    stdscr.addstr(y + 1, x, "Обновлений нет. ВЕРСИЯ ClamAV - 0.001")
+
+
+def _draw_hint_box(stdscr, h, w, text):
+    """Маленький бокс с подсказкой у самого низа экрана, по центру."""
+    pad_x = 2
+    inner_w = len(text)
+    box_w = inner_w + pad_x * 2
+    box_h = 3
+    top = h - box_h - 1
+    left = 26
+
+    # рамка
+    _draw_box(stdscr, top, left, box_w, box_h)
+    # текст
+    stdscr.addstr(top + 1, left + pad_x, text)
 
 def draw_menu(stdscr: "curses._CursesWindow", selected_idx: int) -> None:
     """Отрисовать рамку и пункты меню."""
@@ -80,6 +113,19 @@ def draw_menu(stdscr: "curses._CursesWindow", selected_idx: int) -> None:
             y += 1
         stdscr.addstr(y, x, text.ljust(inner_w), attr)
         y += 1
+
+    # тонкий разделитель — только под зоной меню (короче и «легче»)
+    divider_y = top + box_height + 2
+    divider_left = max(2, left - 10)
+    divider_len = min(box_width + 28, w - divider_left - 2)
+    _draw_thin_divider(stdscr, divider_y, divider_left, divider_len)
+
+    # инфо-блок
+    _draw_info(stdscr, divider_y + 2, divider_left + 2)
+
+    # подсказка в отдельном боксе внизу
+    hint = "↑/k, ↓/j — навигация • Enter — выбрать • L — логи • Q/Esc — выход"
+    _draw_hint_box(stdscr, h, w, hint)
 
     stdscr.refresh()
 
