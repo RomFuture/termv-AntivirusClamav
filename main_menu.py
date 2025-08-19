@@ -13,10 +13,10 @@ from logs import log_window
 # ПРИМЕЧАНИЕ: БОЛЬШАЯ ПРОСЬБА НЕ ИСПОЛЬЗОВАТЬ СИМВОЛЫ ТИПА ❌ - ЛОМАЮТ ОТОБРАЖЕНИЕ
 
 MENU_ITEMS: List[Tuple[str, str]] = [
-    ("НАЧАТЬ", "СКАНИРОВАНИЕ"),# ▶▶ символ «следующий»
-    ("НАСТРОЙКИ", "⚙"),
-    ("ЛОГИ", "▶"),
-    ("ВЫХОД", "✖"),
+    ("START", "SCANNING"),# ▶▶ символ «следующий»
+    ("SETTINGS", "⚙"),
+    ("LOGS", "▶"),
+    ("EXIT", "✖"),
 ]
 
 def draw_arts(stdscr):
@@ -44,8 +44,8 @@ def _draw_thin_divider(stdscr, y, x, length):
 
 
 def _draw_info(stdscr, y, x):
-    stdscr.addstr(y, x, "ИНФОРМАЦИЯ — готов к работе.")
-    stdscr.addstr(y + 1, x, "Обновлений нет. ВЕРСИЯ ClamAV - 0.001")
+    stdscr.addstr(y, x, "INFORMATION — Ready to work.")
+    stdscr.addstr(y + 1, x, "There are no updates. ClamAV VERSION - 0.001")
 
 
 def _draw_hint_box(stdscr, h, w, text):
@@ -104,7 +104,7 @@ def draw_menu(stdscr: "curses._CursesWindow", selected_idx: int) -> None:
 
     for idx, (label, icon) in enumerate(MENU_ITEMS):
         attr = curses.A_REVERSE if idx == selected_idx else curses.A_NORMAL
-        if label != "НАЧАТЬ":
+        if label != "START":
             text = f" {label:<5} {icon} " # выравниваем подпись
         else:
             text1 = f" {label:<5}" # выравниваем подпись
@@ -124,7 +124,7 @@ def draw_menu(stdscr: "curses._CursesWindow", selected_idx: int) -> None:
     _draw_info(stdscr, divider_y + 2, divider_left + 2)
 
     # подсказка в отдельном боксе внизу
-    hint = "↑/k, ↓/j — навигация • Enter — выбрать • L — логи • Q/Esc — выход"
+    hint = "↑/k, ↓/j — navigation • Enter — select • L — logs • Q/Esc — exit"
     _draw_hint_box(stdscr, h, w, hint)
 
     stdscr.refresh()
@@ -148,13 +148,13 @@ def interaction(stdscr: "curses._CursesWindow") -> None:
         elif key in (curses.KEY_ENTER, ord("\n"), ord("\r")):
             label = MENU_ITEMS[selected][0]
             stdscr.clear()
-            if label == "ВЫХОД":
+            if label == "EXIT":
                 break
-            elif label == "НАЧАТЬ":
+            elif label == "START":
                 skan_window(stdscr)
-            elif label == "НАСТРОЙКИ":
+            elif label == "SETTINGS":
                 settings_menu(stdscr)
-            elif label == "ЛОГИ":
+            elif label == "LOGS":
                 log_window(stdscr)
 
         elif key in (27, ord("q")):
